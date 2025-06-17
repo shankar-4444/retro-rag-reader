@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, Newspaper, Clock, TrendingUp, ExternalLink, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -54,8 +53,8 @@ const Index = () => {
     setSources([]);
     
     try {
-      // Replace with your actual backend URL
-      const response = await fetch('http://localhost:5000/api/rag', {
+      // Updated to match your backend URL
+      const response = await fetch('http://127.0.0.1:8000/api/rag', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
