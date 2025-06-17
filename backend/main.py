@@ -2,14 +2,13 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from rag_engine import rag_pipeline  # returns (final_answer, source_answers)
+from rag_engine import rag_pipeline, history
 
 app = FastAPI()
 
-# Enable CORS for frontend access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to specific domain in production
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -18,9 +17,17 @@ app.add_middleware(
 async def query_endpoint(req: Request):
     data = await req.json()
     query = data.get("query", "")
-    final_answer = rag_pipeline(query)  # Discard sources
+    if not query:
+        return {"error": "Missing query"}
+
+    final_answer = rag_pipeline(query)
+
+    # Get the latest sources from global history
+    latest_sources = history[-1]["sources"] if history else []
+
     return {
-        "final_answer": final_answer  # Only the clean, concise answer
+        "answer": final_answer,
+        "sources": latest_sources
     }
 
 @app.get("/")

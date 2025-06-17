@@ -107,7 +107,7 @@ def create_faiss_index(documents, encoder):
     return index, embeddings, list(zip(texts, metadata))
 
 # === RAG Core ===
-def rag_query(user_query, texts_metadata, encoder, index, top_k=2):
+def rag_query(user_query, texts_metadata, encoder, index, top_k=10):
     if not texts_metadata or not index:
         return None
     query_embedding = encoder.encode([user_query])

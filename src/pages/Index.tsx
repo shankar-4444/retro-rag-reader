@@ -1,9 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Newspaper, Clock, TrendingUp, ExternalLink, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useEffect } from "react";
+import {
+  Search,
+  Newspaper,
+  Clock,
+  TrendingUp,
+  ExternalLink,
+  Sparkles,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface NewsSource {
   text: string;
@@ -17,18 +24,18 @@ interface ApiResponse {
 }
 
 const Index = () => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [answer, setAnswer] = useState('');
+  const [answer, setAnswer] = useState("");
   const [sources, setSources] = useState<NewsSource[]>([]);
-  const [displayedAnswer, setDisplayedAnswer] = useState('');
+  const [displayedAnswer, setDisplayedAnswer] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
   // Typewriter effect for the answer
   useEffect(() => {
     if (answer && answer !== displayedAnswer) {
       setIsTyping(true);
-      setDisplayedAnswer('');
+      setDisplayedAnswer("");
       let i = 0;
       const typeTimer = setInterval(() => {
         if (i < answer.length) {
@@ -46,32 +53,34 @@ const Index = () => {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
-    
+
     setIsLoading(true);
-    setAnswer('');
-    setDisplayedAnswer('');
+    setAnswer("");
+    setDisplayedAnswer("");
     setSources([]);
-    
+
     try {
       // Updated to match your backend URL
-      const response = await fetch('http://127.0.0.1:8000/api/rag', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/query", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ query: query.trim() }),
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to fetch');
+        throw new Error("Failed to fetch");
       }
-      
+
       const data: ApiResponse = await response.json();
       setAnswer(data.answer);
       setSources(data.sources || []);
     } catch (error) {
-      console.error('Search error:', error);
-      setAnswer('Sorry, there was an error processing your request. Please try again.');
+      console.error("Search error:", error);
+      setAnswer(
+        "Sorry, there was an error processing your request. Please try again."
+      );
       setSources([]);
     } finally {
       setIsLoading(false);
@@ -83,7 +92,11 @@ const Index = () => {
   };
 
   const trendingTopics = [
-    "AI Revolution", "Climate Change", "Space Exploration", "Healthcare Innovation", "Cryptocurrency"
+    "AI Revolution",
+    "Climate Change",
+    "Space Exploration",
+    "Healthcare Innovation",
+    "Cryptocurrency",
   ];
 
   const loadingMessages = [
@@ -91,7 +104,7 @@ const Index = () => {
     "Analyzing breaking stories...",
     "Gathering latest updates...",
     "Processing information...",
-    "Almost ready..."
+    "Almost ready...",
   ];
 
   const [currentLoadingMessage, setCurrentLoadingMessage] = useState(0);
@@ -123,12 +136,14 @@ const Index = () => {
               <div className="w-px h-4 bg-white"></div>
               <span>REAL-TIME RAG</span>
               <div className="w-px h-4 bg-white"></div>
-              <span>{new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</span>
+              <span>
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
             </div>
           </div>
         </div>
@@ -144,7 +159,9 @@ const Index = () => {
                 <Newspaper className="h-6 w-6 animate-pulse" />
                 BREAKING NEWS INQUIRY DESK
               </CardTitle>
-              <p className="text-red-100">Ask any question about current events and breaking news</p>
+              <p className="text-red-100">
+                Ask any question about current events and breaking news
+              </p>
             </CardHeader>
             <CardContent className="p-8">
               <form onSubmit={handleSearch} className="space-y-6">
@@ -159,15 +176,17 @@ const Index = () => {
                     disabled={isLoading}
                   />
                 </div>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isLoading || !query.trim()}
                   className="w-full py-6 text-lg font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-2 border-black shadow-lg transform transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-3">
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      <span className="animate-pulse">{loadingMessages[currentLoadingMessage]}</span>
+                      <span className="animate-pulse">
+                        {loadingMessages[currentLoadingMessage]}
+                      </span>
                     </div>
                   ) : (
                     <>
@@ -193,7 +212,7 @@ const Index = () => {
             <CardContent className="p-6">
               <div className="flex flex-wrap gap-3">
                 {trendingTopics.map((topic, index) => (
-                  <Badge 
+                  <Badge
                     key={index}
                     variant="outline"
                     className="px-4 py-2 border-2 border-gray-800 hover:bg-gray-800 hover:text-white cursor-pointer transition-all duration-200 text-sm font-medium hover:scale-105 hover:shadow-md"
@@ -223,7 +242,9 @@ const Index = () => {
                   <div className="flex items-center justify-center py-8">
                     <div className="text-center">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mx-auto mb-4"></div>
-                      <p className="text-gray-600 animate-pulse">{loadingMessages[currentLoadingMessage]}</p>
+                      <p className="text-gray-600 animate-pulse">
+                        {loadingMessages[currentLoadingMessage]}
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -248,22 +269,25 @@ const Index = () => {
               </h2>
               <div className="w-32 h-1 bg-red-600 mx-auto"></div>
             </div>
-            
+
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sources.map((source, index) => (
-                <Card 
-                  key={index} 
+                <Card
+                  key={index}
                   className="border-2 border-black shadow-lg hover:shadow-xl transition-all duration-300 bg-white hover:scale-105"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <CardHeader className="border-b-2 border-gray-200">
                     <div className="flex items-center justify-between mb-2">
-                      <Badge variant="outline" className="border-blue-600 text-blue-600">
+                      <Badge
+                        variant="outline"
+                        className="border-blue-600 text-blue-600"
+                      >
                         Source {index + 1}
                       </Badge>
                       <div className="flex items-center text-sm text-gray-600">
                         <Clock className="h-4 w-4 mr-1" />
-                        {source.time !== 'N/A' ? source.time : 'Recent'}
+                        {source.time !== "N/A" ? source.time : "Recent"}
                       </div>
                     </div>
                   </CardHeader>
@@ -271,11 +295,11 @@ const Index = () => {
                     <p className="text-gray-700 leading-relaxed mb-4 line-clamp-4">
                       {source.text}
                     </p>
-                    {source.source !== 'unknown' && (
+                    {source.source !== "unknown" && (
                       <div className="border-t pt-3">
-                        <a 
-                          href={source.source} 
-                          target="_blank" 
+                        <a
+                          href={source.source}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 hover:underline"
                         >
@@ -303,7 +327,8 @@ const Index = () => {
                 Ready to Break the Story?
               </h3>
               <p className="text-gray-500 leading-relaxed">
-                Enter your news query above to get AI-powered analysis and the latest information from our comprehensive news database.
+                Enter your news query above to get AI-powered analysis and the
+                latest information from our comprehensive news database.
               </p>
             </div>
           </section>
@@ -316,7 +341,8 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center relative">
           <div className="border-t-4 border-red-600 pt-6">
             <p className="text-sm opacity-90">
-              © 2024 THE NEWS HERALD • All Rights Reserved • Powered by Advanced RAG Technology
+              © 2024 THE NEWS HERALD • All Rights Reserved • Powered by Advanced
+              RAG Technology
             </p>
           </div>
         </div>
