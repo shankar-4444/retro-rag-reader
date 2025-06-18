@@ -61,7 +61,7 @@ const Index = () => {
 
     try {
       // Updated to match your backend URL
-      const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const BASE_URL = import.meta.env.VITE_API_URL || "https://retro-rag-reader.onrender.com";
       const response = await fetch(`${BASE_URL}/query`, {
 
         method: "POST",
