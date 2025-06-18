@@ -1,9 +1,17 @@
+import os
 import requests
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 import http.client
 import json
+
+# Load environment variables
+SERPER_API_KEY = os.environ.get("X_API_KEY")
+NEWSCATCHER_API_KEY = os.environ.get("X_RAPIDAPI_KEY_NEWSCATCHER")
+NEWS67_API_KEY = os.environ.get("X_RAPIDAPI_KEY_NEWS67")
+MEDIASTACK_API_KEY = os.environ.get("MEDIASTACK_ACCESS_KEY")
+NVIDIA_API_KEY = os.environ.get("NVIDIA_API_KEY")
 
 encoder = SentenceTransformer("all-MiniLM-L6-v2")
 history = []
@@ -27,7 +35,7 @@ def fetch_serper(query):
     conn = http.client.HTTPSConnection("google.serper.dev")
     payload = json.dumps({"q": query})
     headers = {
-        'X-API-KEY': '742be761826127dcb585dd274bb3a72cf87b0f11',
+        'X-API-KEY': SERPER_API_KEY,
         'Content-Type': 'application/json'
     }
     try:
@@ -42,7 +50,7 @@ def fetch_serper(query):
 def fetch_newscatcher(query):
     conn = http.client.HTTPSConnection("newscatcher.p.rapidapi.com")
     headers = {
-        'x-rapidapi-key': "28ae9a713bmsh1facb6ce4437b3bp1324b9jsn193ad2f41b2b",
+        'x-rapidapi-key': NEWSCATCHER_API_KEY,
         'x-rapidapi-host': "newscatcher.p.rapidapi.com"
     }
     try:
@@ -58,11 +66,10 @@ def fetch_newscatcher(query):
 def fetch_news67(query):
     url = "https://news67.p.rapidapi.com/news"
     headers = {
-        "X-RapidAPI-Key": "3e83b5ecabc24103a33eac0754460b9a",
+        "X-RapidAPI-Key": NEWS67_API_KEY,
         "X-RapidAPI-Host": "news67.p.rapidapi.com"
     }
     params = {"q": query, "max": 5}
-
     try:
         response = requests.get(url, headers=headers, params=params)
         data = response.json()
@@ -74,7 +81,7 @@ def fetch_news67(query):
 def fetch_mediastack(query):
     url = "http://api.mediastack.com/v1/news"
     params = {
-        "access_key": "e6377923765c73377314a0d7ad669685",
+        "access_key": MEDIASTACK_API_KEY,
         "keywords": query,
         "languages": "en",
         "limit": 10,
@@ -127,7 +134,7 @@ Now provide a direct, final answer only, without step-by-step reasoning:
 """
 
     headers = {
-        "Authorization": "Bearer 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",
+        "Authorization": f"Bearer {NVIDIA_API_KEY}",
         "Accept": "application/json",
         "Content-Type": "application/json"
     }
