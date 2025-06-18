@@ -2,12 +2,10 @@ import requests
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
-from openai import OpenAI
 import http.client
 import json
 
 encoder = SentenceTransformer("all-MiniLM-L6-v2")
-client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
 history = []
 
 # === Chunking Utility ===
@@ -116,10 +114,6 @@ def rag_query(user_query, texts_metadata, encoder, index, top_k=10):
     context = "\n---\n".join(context_docs)
 
     prompt = f"""
-You are a precise and logical assistant designed to answer questions using real-time web and news data.
-
-Think step-by-step to extract key facts, organize them logically, and derive an accurate answer.
-
 Use only the provided context below. If the context lacks enough information, respond with:
 \"The provided information does not contain enough details to answer this question.\"
 
@@ -129,29 +123,29 @@ Context:
 User Query:
 {user_query}
 
-Now reason step-by-step and answer:
+Now provide a direct, final answer only, without step-by-step reasoning:
 """
 
-    messages = [
-        {"role": "system", "content": "You answer using only the provided context."},
-    ]
+    headers = {
+        "Authorization": "Bearer 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",
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
 
-    for item in history[-3:]:
-        messages.append({"role": "user", "content": item["query"]})
-        messages.append({"role": "assistant", "content": item["answer"]})
-
-    messages.append({"role": "user", "content": prompt})
+    payload = {
+        "model": "meta/llama-4-maverick-17b-128e-instruct",
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 500,
+        "temperature": 0.7,
+        "stream": False
+    }
 
     try:
-        response = client.chat.completions.create(
-            model="mistral",
-            messages=messages,
-            max_tokens=500,
-            temperature=0.7,
-        )
-        return response.choices[0].message.content.strip()
+        response = requests.post("https://integrate.api.nvidia.com/v1/chat/completions", headers=headers, json=payload)
+        result = response.json()
+        return result["choices"][0]["message"]["content"].strip()
     except Exception as e:
-        print("LLM error:", e)
+        print("NVIDIA API error:", e)
         return None
 
 # === Main Pipeline ===
@@ -169,5 +163,5 @@ def rag_pipeline(user_query):
             break
 
     final_answer = answer or "The provided information does not contain enough details to answer this question."
-    history.append({"query": user_query, "answer": final_answer, "model": "mistral", "sources": documents})
+    history.append({"query": user_query, "answer": final_answer, "model": "llama-4-maverick", "sources": documents})
     return final_answer
