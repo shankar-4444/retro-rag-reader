@@ -1,17 +1,20 @@
 import os
 import requests
+from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 import http.client
 import json
 
-# Load environment variables
-SERPER_API_KEY = os.environ.get("X_API_KEY")
-NEWSCATCHER_API_KEY = os.environ.get("X_RAPIDAPI_KEY_NEWSCATCHER")
-NEWS67_API_KEY = os.environ.get("X_RAPIDAPI_KEY_NEWS67")
-MEDIASTACK_API_KEY = os.environ.get("MEDIASTACK_ACCESS_KEY")
-NVIDIA_API_KEY = os.environ.get("NVIDIA_API_KEY")
+# === Load env variables ===
+load_dotenv()
+
+SERPER_API_KEY = os.getenv("X_API_KEY")
+NEWSCATCHER_API_KEY = os.getenv("X_RAPIDAPI_KEY_NEWSCATCHER")
+NEWS67_API_KEY = os.getenv("X_RAPIDAPI_KEY_NEWS67")
+MEDIASTACK_API_KEY = os.getenv("MEDIASTACK_ACCESS_KEY")
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY")
 
 encoder = SentenceTransformer("all-MiniLM-L6-v2")
 history = []
@@ -70,6 +73,7 @@ def fetch_news67(query):
         "X-RapidAPI-Host": "news67.p.rapidapi.com"
     }
     params = {"q": query, "max": 5}
+
     try:
         response = requests.get(url, headers=headers, params=params)
         data = response.json()
