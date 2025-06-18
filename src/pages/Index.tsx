@@ -61,7 +61,9 @@ const Index = () => {
 
     try {
       // Updated to match your backend URL
-      const response = await fetch("http://localhost:8000/query", {
+      const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const response = await fetch(`${BASE_URL}/query`, {
+
         method: "POST",
         headers: {
           "Content-Type": "application/json",
