@@ -10,11 +10,12 @@ import json
 # === Load env variables ===
 load_dotenv()
 
-SERPER_API_KEY = os.getenv("X_API_KEY")
-NEWSCATCHER_API_KEY = os.getenv("X_RAPIDAPI_KEY_NEWSCATCHER")
-NEWS67_API_KEY = os.getenv("X_RAPIDAPI_KEY_NEWS67")
-MEDIASTACK_API_KEY = os.getenv("MEDIASTACK_ACCESS_KEY")
+SERPER_API_KEY = os.getenv("SERPER_API_KEY")
+NEWSCATCHER_API_KEY = os.getenv("NEWSCATCHER_API_KEY")
+NEWS67_API_KEY = os.getenv("NEWS67_API_KEY")
+MEDIASTACK_API_KEY = os.getenv("MEDIASTACK_API_KEY")
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY")
+
 
 encoder = SentenceTransformer("all-MiniLM-L6-v2")
 history = []
