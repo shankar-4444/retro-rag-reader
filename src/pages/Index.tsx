@@ -130,7 +130,7 @@ const Index = () => {
         <div className="container mx-auto px-4 relative">
           <div className="text-center">
             <h1 className="text-6xl font-bold font-serif tracking-wider mb-2 animate-fade-in">
-              THE NEWS GARRETT
+              THE NEWS BULLOCK
             </h1>
             <div className="flex justify-center items-center gap-4 text-sm opacity-90">
               <span className="flex items-center gap-1">
@@ -345,7 +345,7 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center relative">
           <div className="border-t-4 border-red-600 pt-6">
             <p className="text-sm opacity-90">
-              © 2024 THE NEWS GARRETT • All Rights Reserved • Powered by Advanced
+              © 2024 THE NEWS BULLOCK • All Rights Reserved • Powered by Advanced
               RAG Technology
             </p>
           </div>
