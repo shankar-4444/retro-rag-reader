@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-
 from rag_engine import rag_pipeline, history
 
 app = FastAPI()

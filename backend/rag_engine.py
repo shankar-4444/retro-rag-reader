@@ -16,7 +16,6 @@ NEWS67_API_KEY = os.getenv("NEWS67_API_KEY")
 MEDIASTACK_API_KEY = os.getenv("MEDIASTACK_API_KEY")
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY")
 
-
 encoder = SentenceTransformer("all-MiniLM-L6-v2")
 history = []
 
@@ -44,8 +43,7 @@ def fetch_serper(query):
     }
     try:
         conn.request("POST", "/search", payload, headers)
-        res = conn.getresponse()
-        data = json.loads(res.read())
+        data = json.loads(conn.getresponse().read())
         return [{"text": item['snippet'], "source": item.get("link", "unknown"), "time": "N/A"} for item in data.get("organic", []) if 'snippet' in item]
     except:
         return []
@@ -60,8 +58,7 @@ def fetch_newscatcher(query):
     try:
         path = f"/v1/aggregation?q={query}&agg_by=day&media=True"
         conn.request("GET", path, headers=headers)
-        res = conn.getresponse()
-        data = json.loads(res.read())
+        data = json.loads(conn.getresponse().read())
         return [{"text": item['summary'], "source": item.get("link", "unknown"), "time": item.get("published_date", "N/A")} for item in data.get("articles", []) if 'summary' in item]
     except:
         return []
@@ -76,8 +73,7 @@ def fetch_news67(query):
     params = {"q": query, "max": 5}
 
     try:
-        response = requests.get(url, headers=headers, params=params)
-        data = response.json()
+        data = requests.get(url, headers=headers, params=params).json()
         return [{"text": item["title"] + ". " + item.get("description", ""), "source": item.get("url", "unknown"), "time": item.get("publishedAt", "N/A")} for item in data.get("articles", [])]
     except:
         return []
@@ -93,8 +89,7 @@ def fetch_mediastack(query):
         "sort": "published_desc",
     }
     try:
-        response = requests.get(url, params=params)
-        data = response.json()
+        data = requests.get(url, params=params).json()
         return [{"text": item["title"] + ". " + item.get("description", ""), "source": item.get("url", "unknown"), "time": item.get("published_at", "N/A")} for item in data.get("data", [])]
     except:
         return []
@@ -111,8 +106,7 @@ def create_faiss_index(documents, encoder):
             texts.append(chunk)
             metadata.append((doc['source'], doc['time']))
     embeddings = encoder.encode(texts)
-    dim = embeddings.shape[1]
-    index = faiss.IndexFlatL2(dim)
+    index = faiss.IndexFlatL2(embeddings.shape[1])
     index.add(np.array(embeddings))
     return index, embeddings, list(zip(texts, metadata))
 
@@ -122,9 +116,7 @@ def rag_query(user_query, texts_metadata, encoder, index, top_k=10):
         return None
     query_embedding = encoder.encode([user_query])
     distances, indices = index.search(np.array(query_embedding), top_k)
-    context_docs = [f"{texts_metadata[i][0]} (source: {texts_metadata[i][1][0]}, time: {texts_metadata[i][1][1]})" for i in indices[0] if i < len(texts_metadata)]
-    context = "\n---\n".join(context_docs)
-
+    context = "\n---\n".join([f"{texts_metadata[i][0]} (source: {texts_metadata[i][1][0]}, time: {texts_metadata[i][1][1]})" for i in indices[0] if i < len(texts_metadata)])
     prompt = f"""
 Use only the provided context below. If the context lacks enough information, respond with:
 \"The provided information does not contain enough details to answer this question.\"
@@ -153,8 +145,7 @@ Now provide a direct, final answer only, without step-by-step reasoning:
     }
 
     try:
-        response = requests.post("https://integrate.api.nvidia.com/v1/chat/completions", headers=headers, json=payload)
-        result = response.json()
+        result = requests.post("https://integrate.api.nvidia.com/v1/chat/completions", headers=headers, json=payload).json()
         return result["choices"][0]["message"]["content"].strip()
     except Exception as e:
         print("NVIDIA API error:", e)
@@ -163,17 +154,14 @@ Now provide a direct, final answer only, without step-by-step reasoning:
 # === Main Pipeline ===
 def rag_pipeline(user_query):
     global history
-
     if len(user_query.split()) < 4 and history:
         user_query = history[-1]["query"] + " " + user_query
-
     for fetcher in [fetch_serper, fetch_newscatcher, fetch_news67, fetch_mediastack]:
         documents = fetcher(user_query)
         index, _, texts_metadata = create_faiss_index(documents, encoder)
         answer = rag_query(user_query, texts_metadata, encoder, index)
         if answer and "not contain enough details" not in answer.lower():
             break
-
     final_answer = answer or "The provided information does not contain enough details to answer this question."
     history.append({"query": user_query, "answer": final_answer, "model": "llama-4-maverick", "sources": documents})
     return final_answer
